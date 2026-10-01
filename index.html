@@ -50,12 +50,14 @@
   .info b { font-size:17px; color:var(--navy); }
   .spec { display:inline-block; margin:5px 0 8px; padding:3px 10px; border-radius:999px; font-size:13px;
           font-weight:600; background:rgba(43,179,123,.14); color:#16875a; }
+  .hosp { display:flex; align-items:center; gap:6px; font-size:15px; font-weight:600; color:var(--ink); }
+  .hosp svg { width:16px; height:16px; flex:none; }
   .meta { font-size:14px; color:var(--muted); line-height:1.55; }
   .btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
   .btn { padding:10px 16px; border-radius:12px; font-size:14px; font-weight:600; border:0;
          text-decoration:none; color:#fff; display:inline-block; }
   .book { background:linear-gradient(135deg,var(--green),var(--teal)); }
-  .call { background:#fff; color:var(--navy); border:1.5px solid var(--line); }
+  .call, .dir { background:#fff; color:var(--navy); border:1.5px solid var(--line); }
   .cancel { background:#fff; color:var(--red); border:1.5px solid #efc9c5; }
   .cancel.sure { background:var(--red); color:#fff; border-color:var(--red); }
   .empty { text-align:center; color:var(--muted); padding:48px 20px; line-height:1.6; }
@@ -73,7 +75,7 @@
   .sheet { width:100%; max-width:520px; max-height:92vh; overflow-y:auto; background:#fff;
            border-radius:22px 22px 0 0; padding:20px 18px 26px; }
   .sheet h2 { margin:0 0 4px; font-size:21px; color:var(--navy); }
-  .sub { color:var(--muted); font-size:14px; margin-bottom:14px; }
+  .sub { color:var(--muted); font-size:14px; margin-bottom:14px; line-height:1.5; }
   label { display:block; font-size:13px; font-weight:600; color:var(--navy); margin:12px 0 6px; }
   .err { color:var(--red); font-size:13px; margin-top:10px; min-height:18px; }
   .row { display:flex; gap:8px; margin-top:14px; }
@@ -105,7 +107,7 @@
 
 <div class="hero">
   <h1 id="h1">Find a doctor</h1>
-  <p id="hp">Search by name or specialty, then book a visit.</p>
+  <p id="hp">Search by doctor, specialty or hospital, then book a visit.</p>
 </div>
 
 <!-- DOCTORS VIEW -->
@@ -113,7 +115,7 @@
   <div class="tools">
     <div class="field">
       <svg viewBox="0 0 24 24" fill="none" stroke="#5a7487" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="q" type="search" placeholder="Search by name or specialty" autocomplete="off">
+      <input id="q" type="search" placeholder="Search doctor, specialty or hospital" autocomplete="off">
     </div>
     <div class="chips" id="chips"></div>
   </div>
@@ -158,22 +160,23 @@
 
 <script>
 // EDIT THIS LIST: one line per doctor. Keep the commas and quotes.
+// "hospital" is used for the Directions button (it searches Google Maps by this name).
 var DOCTORS = [
-  { name: "Dr. Ahmed Hassan",   specialty: "Cardiology",       dept: "Heart Center, Floor 2",    days: "Sun, Tue, Thu", phone: "0750 123 4567" },
-  { name: "Dr. Sara Ali",       specialty: "Pediatrics",       dept: "Children's Wing, Floor 1", days: "Mon - Thu",     phone: "0750 234 5678" },
-  { name: "Dr. Omar Kareem",    specialty: "Dermatology",      dept: "Clinic B, Floor 3",        days: "Sun, Wed",      phone: "0750 345 6789" },
-  { name: "Dr. Layla Noor",     specialty: "Gynecology",       dept: "Women's Clinic, Floor 2",  days: "Mon, Wed, Thu", phone: "0750 456 7890" },
-  { name: "Dr. Yusuf Saleh",    specialty: "Orthopedics",      dept: "Clinic A, Floor 1",        days: "Sun - Tue",     phone: "0750 567 8901" },
-  { name: "Dr. Mariam Jasim",   specialty: "Neurology",        dept: "Clinic C, Floor 3",        days: "Tue, Thu",      phone: "0750 678 9012" },
-  { name: "Dr. Karwan Mahmood", specialty: "Dentistry",        dept: "Dental Clinic, Floor 1",   days: "Sun - Thu",     phone: "0750 789 0123" },
-  { name: "Dr. Zainab Rashid",  specialty: "Ophthalmology",    dept: "Eye Clinic, Floor 2",      days: "Mon, Tue, Thu", phone: "0750 890 1234" },
-  { name: "Dr. Hiwa Aziz",      specialty: "ENT",              dept: "Clinic D, Floor 2",        days: "Sun, Mon, Wed", phone: "0750 901 2345" },
-  { name: "Dr. Rebin Othman",   specialty: "Urology",          dept: "Clinic E, Floor 3",        days: "Tue, Wed, Thu", phone: "0750 112 2334" },
-  { name: "Dr. Shadan Ibrahim", specialty: "Internal Medicine",dept: "Clinic F, Floor 1",        days: "Sun - Thu",     phone: "0750 223 3445" },
-  { name: "Dr. Nawzad Faraj",   specialty: "General Surgery",  dept: "Surgical Wing, Floor 4",   days: "Mon, Wed",      phone: "0750 334 4556" },
-  { name: "Dr. Dilan Baker",    specialty: "Psychiatry",       dept: "Clinic G, Floor 3",        days: "Tue, Thu",      phone: "0750 445 5667" },
-  { name: "Dr. Awat Salim",     specialty: "Endocrinology",    dept: "Clinic H, Floor 2",        days: "Sun, Tue",      phone: "0750 556 6778" },
-  { name: "Dr. Roza Hamad",     specialty: "General Medicine", dept: "Clinic I, Floor 1",        days: "Sun - Thu",     phone: "0750 667 7889" }
+  { name: "Dr. Ahmed Hassan",   specialty: "Cardiology",        hospital: "Azadi Teaching Hospital",         dept: "Heart Center, Floor 2",    days: "Sun, Tue, Thu", phone: "0750 123 4567" },
+  { name: "Dr. Sara Ali",       specialty: "Pediatrics",        hospital: "Hevi Hospital",                   dept: "Children's Clinic, Floor 1", days: "Mon - Thu",   phone: "0750 234 5678" },
+  { name: "Dr. Omar Kareem",    specialty: "Dermatology",       hospital: "Shilan Private Hospital",         dept: "Clinic B, Floor 3",        days: "Sun, Wed",      phone: "0750 345 6789" },
+  { name: "Dr. Layla Noor",     specialty: "Gynecology",        hospital: "Duhok Maternity Hospital",        dept: "Women's Clinic, Floor 2",  days: "Mon, Wed, Thu", phone: "0750 456 7890" },
+  { name: "Dr. Yusuf Saleh",    specialty: "Orthopedics",       hospital: "Baroshki Emergency Teaching Hospital", dept: "Clinic A, Floor 1",   days: "Sun - Tue",     phone: "0750 567 8901" },
+  { name: "Dr. Mariam Jasim",   specialty: "Neurology",         hospital: "Azadi Teaching Hospital",         dept: "Clinic C, Floor 3",        days: "Tue, Thu",      phone: "0750 678 9012" },
+  { name: "Dr. Karwan Mahmood", specialty: "Dentistry",         hospital: "Jiyan Private Hospital",          dept: "Dental Clinic, Floor 1",   days: "Sun - Thu",     phone: "0750 789 0123" },
+  { name: "Dr. Zainab Rashid",  specialty: "Ophthalmology",     hospital: "Duhok Private Hospital",          dept: "Eye Clinic, Floor 2",      days: "Mon, Tue, Thu", phone: "0750 890 1234" },
+  { name: "Dr. Hiwa Aziz",      specialty: "ENT",               hospital: "German Private Hospital",         dept: "Clinic D, Floor 2",        days: "Sun, Mon, Wed", phone: "0750 901 2345" },
+  { name: "Dr. Rebin Othman",   specialty: "Urology",           hospital: "Zanko Private Hospital",          dept: "Clinic E, Floor 3",        days: "Tue, Wed, Thu", phone: "0750 112 2334" },
+  { name: "Dr. Shadan Ibrahim", specialty: "Internal Medicine", hospital: "Azadi Teaching Hospital",         dept: "Clinic F, Floor 1",        days: "Sun - Thu",     phone: "0750 223 3445" },
+  { name: "Dr. Nawzad Faraj",   specialty: "General Surgery",   hospital: "Baroshki Emergency Teaching Hospital", dept: "Surgical Wing, Floor 4", days: "Mon, Wed",   phone: "0750 334 4556" },
+  { name: "Dr. Dilan Baker",    specialty: "Psychiatry",        hospital: "Jiyan Private Hospital",          dept: "Clinic G, Floor 3",        days: "Tue, Thu",      phone: "0750 445 5667" },
+  { name: "Dr. Awat Salim",     specialty: "Endocrinology",     hospital: "CMC Private Hospital",            dept: "Clinic H, Floor 2",        days: "Sun, Tue",      phone: "0750 556 6778" },
+  { name: "Dr. Roza Hamad",     specialty: "General Medicine",  hospital: "Duhok Private Hospital",          dept: "Clinic I, Floor 1",        days: "Sun - Thu",     phone: "0750 667 7889" }
 ];
 
 var TIMES = ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","13:00","13:30","14:00","14:30","15:00","15:30","16:00"];
@@ -181,6 +184,11 @@ var TIMES = ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","13:00","13
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
   return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+function mapsUrl(hospital) {
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(hospital + ", Duhok, Iraq");
+}
+var PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="#1a9a85" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 
 /* ---- saved appointments (stays on this phone; falls back to memory if storage is blocked) ---- */
 var KEY = "smartcare_appointments", memory = [];
@@ -208,18 +216,20 @@ function render() {
   var term = $("q").value.trim().toLowerCase();
   var rows = DOCTORS.filter(function (d) {
     var okSpec = active === "All" || d.specialty === active;
-    var okText = !term || (d.name + " " + d.specialty + " " + d.dept).toLowerCase().indexOf(term) > -1;
+    var okText = !term || (d.name + " " + d.specialty + " " + d.hospital + " " + d.dept).toLowerCase().indexOf(term) > -1;
     return okSpec && okText;
   });
   $("count").textContent = rows.length + (rows.length === 1 ? " doctor" : " doctors");
   $("list").innerHTML = rows.length ? rows.map(function (d) {
     var i = DOCTORS.indexOf(d);
     return '<div class="doc"><div class="av">' + esc(initials(d.name)) + '</div><div class="info"><b>' +
-      esc(d.name) + '</b><br><span class="spec">' + esc(d.specialty) + '</span><div class="meta">' +
-      esc(d.dept) + '<br>Available: ' + esc(d.days) + '</div><div class="btns">' +
+      esc(d.name) + '</b><br><span class="spec">' + esc(d.specialty) + '</span>' +
+      '<div class="hosp">' + PIN + '<span>' + esc(d.hospital) + '</span></div>' +
+      '<div class="meta">' + esc(d.dept) + '<br>Available: ' + esc(d.days) + '</div><div class="btns">' +
       '<button class="btn book" data-i="' + i + '">Book appointment</button>' +
+      '<a class="btn dir" target="_blank" rel="noopener" href="' + esc(mapsUrl(d.hospital)) + '">Directions</a>' +
       '<a class="btn call" href="tel:' + esc(d.phone.replace(/\s/g, "")) + '">Call</a></div></div></div>';
-  }).join("") : '<div class="empty">No doctors found.<br>Try another name or specialty.</div>';
+  }).join("") : '<div class="empty">No doctors found.<br>Try another name, specialty or hospital.</div>';
 }
 
 /* ---- booking form ---- */
@@ -233,7 +243,7 @@ $("fTime").innerHTML = TIMES.map(function (t) { return '<option value="' + t + '
 function openForm(i) {
   current = DOCTORS[i];
   $("mDoc").textContent = current.name;
-  $("mSub").textContent = current.specialty + " - " + current.dept;
+  $("mSub").textContent = current.specialty + " - " + current.hospital + ", " + current.dept;
   $("fDate").min = today();
   $("fDate").value = "";
   $("err").textContent = "";
@@ -251,8 +261,8 @@ $("bConfirm").addEventListener("click", function () {
   if (!name || !phone || !date) { $("err").textContent = "Please enter your name, phone number and date."; return; }
   if (date < today()) { $("err").textContent = "Please choose today or a later date."; return; }
   var a = loadAppts();
-  a.push({ id: Date.now(), doctor: current.name, specialty: current.specialty, dept: current.dept,
-           date: date, time: $("fTime").value, name: name, phone: phone });
+  a.push({ id: Date.now(), doctor: current.name, specialty: current.specialty, hospital: current.hospital,
+           dept: current.dept, date: date, time: $("fTime").value, name: name, phone: phone });
   saveAppts(a);
   closeForm(); renderAppts(); showTab("appts"); toast("Appointment booked");
 });
@@ -267,11 +277,13 @@ function fmtDate(s) {
 function renderAppts() {
   var a = loadAppts().slice().sort(function (x, y) { return y.id - x.id; });
   $("appts").innerHTML = a.length ? a.map(function (p) {
+    var hosp = p.hospital ? '<div class="hosp">' + PIN + '<span>' + esc(p.hospital) + '</span></div>' : "";
+    var dir = p.hospital ? '<a class="btn dir" target="_blank" rel="noopener" href="' + esc(mapsUrl(p.hospital)) + '">Directions</a>' : "";
     return '<div class="doc"><div class="av">' + esc(initials(p.doctor)) + '</div><div class="info"><b>' + esc(p.doctor) +
-      '</b><br><span class="spec">' + esc(p.specialty) + '</span><div class="meta">' + esc(p.dept) +
+      '</b><br><span class="spec">' + esc(p.specialty) + '</span>' + hosp + '<div class="meta">' + esc(p.dept) +
       '</div><div class="when">' + esc(fmtDate(p.date)) + ' at ' + esc(p.time) + '</div><div class="meta">Booked for ' +
-      esc(p.name) + ' (' + esc(p.phone) + ')</div><div class="btns"><button class="btn cancel" data-id="' + p.id +
-      '">Cancel appointment</button></div></div></div>';
+      esc(p.name) + ' (' + esc(p.phone) + ')</div><div class="btns">' + dir +
+      '<button class="btn cancel" data-id="' + p.id + '">Cancel appointment</button></div></div></div>';
   }).join("") : '<div class="empty">No appointments yet.<br>Pick a doctor and tap Book appointment.</div>';
 }
 
@@ -291,7 +303,7 @@ function showTab(t) {
   $("tDoctors").className = docs ? "on" : "";
   $("tAppts").className = docs ? "" : "on";
   $("h1").textContent = docs ? "Find a doctor" : "My appointments";
-  $("hp").textContent = docs ? "Search by name or specialty, then book a visit." : "Your booked visits, newest first.";
+  $("hp").textContent = docs ? "Search by doctor, specialty or hospital, then book a visit." : "Your booked visits, newest first.";
   window.scrollTo(0, 0);
 }
 $("tDoctors").addEventListener("click", function () { showTab("doctors"); });
