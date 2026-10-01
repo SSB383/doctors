@@ -10,6 +10,8 @@
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); padding-bottom:76px;
          font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  body.only-appts { padding-bottom:24px; }
+  .only-appts .nav { display:none; }
   button { font-family:inherit; cursor:pointer; }
 
   .top { display:flex; align-items:center; gap:10px; padding:12px 18px; background:#fff;
@@ -284,7 +286,7 @@ function renderAppts() {
       '</div><div class="when">' + esc(fmtDate(p.date)) + ' at ' + esc(p.time) + '</div><div class="meta">Booked for ' +
       esc(p.name) + ' (' + esc(p.phone) + ')</div><div class="btns">' + dir +
       '<button class="btn cancel" data-id="' + p.id + '">Cancel appointment</button></div></div></div>';
-  }).join("") : '<div class="empty">No appointments yet.<br>Pick a doctor and tap Book appointment.</div>';
+  }).join("") : '<div class="empty">No appointments yet.<br>Book a doctor from Find Doctor on the home page.</div>';
 }
 
 $("appts").addEventListener("click", function (e) {
@@ -320,6 +322,12 @@ $("list").addEventListener("click", function (e) {
 $("q").addEventListener("input", render);
 
 drawChips(); render(); renderAppts();
+
+/* link ending in ?tab=appts opens only My appointments (bottom tabs hidden) */
+if (location.search.indexOf("tab=appts") > -1) {
+  document.body.className = "only-appts";
+  showTab("appts");
+}
 </script>
 </body>
 </html>
