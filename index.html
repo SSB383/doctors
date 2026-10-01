@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find a doctor</title>
+<style>
+  :root { --bg:#f3f8f8; --card:#fff; --ink:#12302f; --muted:#5d7776; --accent:#0e7c7b; --line:#d5e4e3; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--ink);
+         font-family:-apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .search { position:sticky; top:0; padding:8px 0 10px; background:var(--bg); }
+  input { width:100%; font-size:16px; padding:13px 14px; border:1.5px solid var(--line);
+          border-radius:12px; background:var(--card); color:var(--ink); }
+  input:focus { outline:none; border-color:var(--accent); }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding:10px 0 2px; }
+  .chip { flex:none; padding:7px 13px; border:1.5px solid var(--line); border-radius:999px;
+          background:var(--card); color:var(--ink); font-size:14px; }
+  .chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .doc { background:var(--card); border:1px solid var(--line); border-radius:14px;
+         padding:14px; margin-top:10px; }
+  .doc b { font-size:17px; }
+  .spec { color:var(--accent); font-weight:600; margin:2px 0 6px; }
+  .meta { color:var(--muted); font-size:14px; line-height:1.5; }
+  .call { display:inline-block; margin-top:8px; padding:7px 12px; border-radius:999px;
+          background:var(--accent); color:#fff; font-size:14px; text-decoration:none; }
+  .empty { text-align:center; color:var(--muted); margin-top:40px; }
+</style>
+</head>
+<body>
+<div class="search">
+  <input id="q" type="search" placeholder="Search by name or specialty" autocomplete="off">
+  <div class="chips" id="chips"></div>
+</div>
+<div id="list"></div>
+
+<script>
+// EDIT THIS LIST: one line per doctor. Keep the commas and quotes.
+var DOCTORS = [
+  { name: "Dr. Ahmed Hassan",   specialty: "Cardiology",       dept: "Heart Center, Floor 2",    days: "Sun, Tue, Thu", phone: "0750 123 4567" },
+  { name: "Dr. Sara Ali",       specialty: "Pediatrics",       dept: "Children's Wing, Floor 1", days: "Mon - Thu",     phone: "0750 234 5678" },
+  { name: "Dr. Omar Kareem",    specialty: "Dermatology",      dept: "Clinic B, Floor 3",        days: "Sun, Wed",      phone: "0750 345 6789" },
+  { name: "Dr. Layla Noor",     specialty: "Gynecology",       dept: "Women's Clinic, Floor 2",  days: "Mon, Wed, Thu", phone: "0750 456 7890" },
+  { name: "Dr. Yusuf Saleh",    specialty: "Orthopedics",      dept: "Clinic A, Floor 1",        days: "Sun - Tue",     phone: "0750 567 8901" },
+  { name: "Dr. Mariam Jasim",   specialty: "Neurology",        dept: "Clinic C, Floor 3",        days: "Tue, Thu",      phone: "0750 678 9012" },
+  { name: "Dr. Karwan Mahmood", specialty: "Dentistry",        dept: "Dental Clinic, Floor 1",   days: "Sun - Thu",     phone: "0750 789 0123" },
+  { name: "Dr. Zainab Rashid",  specialty: "Ophthalmology",    dept: "Eye Clinic, Floor 2",      days: "Mon, Tue, Thu", phone: "0750 890 1234" },
+  { name: "Dr. Hiwa Aziz",      specialty: "ENT",              dept: "Clinic D, Floor 2",        days: "Sun, Mon, Wed", phone: "0750 901 2345" },
+  { name: "Dr. Rebin Othman",   specialty: "Urology",          dept: "Clinic E, Floor 3",        days: "Tue, Wed, Thu", phone: "0750 112 2334" },
+  { name: "Dr. Shadan Ibrahim", specialty: "Internal Medicine",dept: "Clinic F, Floor 1",        days: "Sun - Thu",     phone: "0750 223 3445" },
+  { name: "Dr. Nawzad Faraj",   specialty: "General Surgery",  dept: "Surgical Wing, Floor 4",   days: "Mon, Wed",      phone: "0750 334 4556" },
+  { name: "Dr. Dilan Baker",    specialty: "Psychiatry",       dept: "Clinic G, Floor 3",        days: "Tue, Thu",      phone: "0750 445 5667" },
+  { name: "Dr. Awat Salim",     specialty: "Endocrinology",    dept: "Clinic H, Floor 2",        days: "Sun, Tue",      phone: "0750 556 6778" },
+  { name: "Dr. Roza Hamad",     specialty: "General Medicine", dept: "Clinic I, Floor 1",        days: "Sun - Thu",     phone: "0750 667 7889" }
+];
+
+var q = document.getElementById("q"), list = document.getElementById("list"),
+    chipsEl = document.getElementById("chips"), active = "All";
+
+var specs = ["All"];
+DOCTORS.forEach(function (d) { if (specs.indexOf(d.specialty) < 0) specs.push(d.specialty); });
+
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
+  return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+function drawChips() {
+  chipsEl.innerHTML = specs.map(function (s) {
+    return '<button class="chip' + (s === active ? " on" : "") + '" data-s="' + esc(s) + '">' + esc(s) + "</button>";
+  }).join("");
+}
+
+function render() {
+  var term = q.value.trim().toLowerCase();
+  var rows = DOCTORS.filter(function (d) {
+    var okSpec = active === "All" || d.specialty === active;
+    var okText = !term || (d.name + " " + d.specialty + " " + d.dept).toLowerCase().indexOf(term) > -1;
+    return okSpec && okText;
+  });
+  list.innerHTML = rows.length ? rows.map(function (d) {
+    return '<div class="doc"><b>' + esc(d.name) + '</b><div class="spec">' + esc(d.specialty) +
+      '</div><div class="meta">' + esc(d.dept) + '<br>Available: ' + esc(d.days) + '</div>' +
+      '<a class="call" href="tel:' + esc(d.phone.replace(/\s/g, "")) + '">Call ' + esc(d.phone) + '</a></div>';
+  }).join("") : '<div class="empty">No doctors found. Try another name or specialty.</div>';
+}
+
+chipsEl.addEventListener("click", function (e) {
+  var s = e.target.getAttribute("data-s");
+  if (s) { active = s; drawChips(); render(); }
+});
+q.addEventListener("input", render);
+drawChips(); render();
+</script>
+</body>
+</html>
