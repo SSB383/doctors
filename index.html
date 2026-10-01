@@ -3,36 +3,158 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Find a doctor</title>
+<title>SmartCare - Find a doctor</title>
 <style>
-  :root { --bg:#f3f8f8; --card:#fff; --ink:#12302f; --muted:#5d7776; --accent:#0e7c7b; --line:#d5e4e3; }
-  * { box-sizing: border-box; }
-  body { margin:0; padding:16px; background:var(--bg); color:var(--ink);
-         font-family:-apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-  .search { position:sticky; top:0; padding:8px 0 10px; background:var(--bg); }
-  input { width:100%; font-size:16px; padding:13px 14px; border:1.5px solid var(--line);
-          border-radius:12px; background:var(--card); color:var(--ink); }
-  input:focus { outline:none; border-color:var(--accent); }
-  .chips { display:flex; gap:8px; overflow-x:auto; padding:10px 0 2px; }
-  .chip { flex:none; padding:7px 13px; border:1.5px solid var(--line); border-radius:999px;
-          background:var(--card); color:var(--ink); font-size:14px; }
-  .chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .doc { background:var(--card); border:1px solid var(--line); border-radius:14px;
-         padding:14px; margin-top:10px; }
-  .doc b { font-size:17px; }
-  .spec { color:var(--accent); font-weight:600; margin:2px 0 6px; }
-  .meta { color:var(--muted); font-size:14px; line-height:1.5; }
-  .call { display:inline-block; margin-top:8px; padding:7px 12px; border-radius:999px;
-          background:var(--accent); color:#fff; font-size:14px; text-decoration:none; }
-  .empty { text-align:center; color:var(--muted); margin-top:40px; }
+  :root { --navy:#0b4f85; --blue:#1e73be; --sky:#2ea8e8; --green:#2bb37b; --teal:#1a9a85;
+          --bg:#f2f8fb; --card:#fff; --ink:#0f2a3d; --muted:#5a7487; --line:#d8e6ef; --red:#c8453b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); padding-bottom:76px;
+         font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  button { font-family:inherit; cursor:pointer; }
+
+  .top { display:flex; align-items:center; gap:10px; padding:12px 18px; background:#fff;
+         border-bottom:1px solid var(--line); }
+  .top svg { width:38px; height:38px; flex:none; }
+  .brand { font-size:22px; font-weight:800; letter-spacing:-.3px; color:var(--navy); line-height:1; }
+  .brand span { color:var(--green); }
+  .tag { font-size:11px; color:var(--muted); margin-top:3px; }
+
+  .hero { padding:24px 18px 28px; color:#fff;
+          background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 55%,var(--teal) 100%); }
+  .hero h1 { margin:0 0 6px; font-size:28px; letter-spacing:-.4px; }
+  .hero p { margin:0; font-size:15px; opacity:.92; }
+
+  .tools { position:sticky; top:0; z-index:5; padding:12px 16px 10px; background:var(--bg);
+           border-bottom:1px solid var(--line); }
+  .field { position:relative; }
+  .field svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:20px; height:20px; }
+  input, select { width:100%; font-size:16px; padding:13px 14px; border:1.5px solid var(--line);
+          border-radius:14px; background:#fff; color:var(--ink); font-family:inherit; }
+  #q { padding-left:44px; }
+  input:focus, select:focus { outline:none; border-color:var(--sky); box-shadow:0 0 0 3px rgba(46,168,232,.2); }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding:12px 0 2px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:none; padding:8px 15px; border:1.5px solid var(--line); border-radius:999px;
+          background:#fff; color:var(--navy); font-size:14px; font-weight:600; }
+  .chip.on { background:linear-gradient(135deg,var(--blue),var(--teal)); border-color:transparent; color:#fff; }
+
+  .wrap { padding:6px 16px 20px; }
+  .count { margin:14px 2px 4px; font-size:13px; color:var(--muted); }
+  .doc { display:flex; gap:14px; align-items:flex-start; background:var(--card);
+         border:1px solid var(--line); border-radius:18px; padding:14px; margin-top:12px;
+         box-shadow:0 2px 10px rgba(11,79,133,.06); }
+  .av { flex:none; width:54px; height:54px; border-radius:16px; display:grid; place-items:center;
+        color:#fff; font-weight:700; font-size:18px;
+        background:linear-gradient(135deg,var(--sky),var(--green)); }
+  .info { flex:1; min-width:0; }
+  .info b { font-size:17px; color:var(--navy); }
+  .spec { display:inline-block; margin:5px 0 8px; padding:3px 10px; border-radius:999px; font-size:13px;
+          font-weight:600; background:rgba(43,179,123,.14); color:#16875a; }
+  .meta { font-size:14px; color:var(--muted); line-height:1.55; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .btn { padding:10px 16px; border-radius:12px; font-size:14px; font-weight:600; border:0;
+         text-decoration:none; color:#fff; display:inline-block; }
+  .book { background:linear-gradient(135deg,var(--green),var(--teal)); }
+  .call { background:#fff; color:var(--navy); border:1.5px solid var(--line); }
+  .cancel { background:#fff; color:var(--red); border:1.5px solid #efc9c5; }
+  .cancel.sure { background:var(--red); color:#fff; border-color:var(--red); }
+  .empty { text-align:center; color:var(--muted); padding:48px 20px; line-height:1.6; }
+  .when { margin-top:8px; font-weight:600; color:var(--ink); }
+
+  .nav { position:fixed; left:0; right:0; bottom:0; z-index:10; display:flex; background:#fff;
+         border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom,0); }
+  .nav button { flex:1; padding:12px 0 14px; border:0; background:none; font-size:13px;
+                font-weight:600; color:var(--muted); }
+  .nav button.on { color:var(--navy); box-shadow:inset 0 3px 0 var(--green); }
+
+  .overlay { position:fixed; inset:0; z-index:20; background:rgba(8,32,52,.55); display:none;
+             align-items:flex-end; justify-content:center; }
+  .overlay.show { display:flex; }
+  .sheet { width:100%; max-width:520px; max-height:92vh; overflow-y:auto; background:#fff;
+           border-radius:22px 22px 0 0; padding:20px 18px 26px; }
+  .sheet h2 { margin:0 0 4px; font-size:21px; color:var(--navy); }
+  .sub { color:var(--muted); font-size:14px; margin-bottom:14px; }
+  label { display:block; font-size:13px; font-weight:600; color:var(--navy); margin:12px 0 6px; }
+  .err { color:var(--red); font-size:13px; margin-top:10px; min-height:18px; }
+  .row { display:flex; gap:8px; margin-top:14px; }
+  .row .btn { flex:1; text-align:center; padding:13px; }
+  .ghost { background:#fff; color:var(--muted); border:1.5px solid var(--line); }
+  .go { background:linear-gradient(135deg,var(--blue),var(--navy)); }
+
+  .toast { position:fixed; left:50%; bottom:90px; transform:translateX(-50%); z-index:30; background:var(--navy);
+           color:#fff; padding:11px 18px; border-radius:999px; font-size:14px; font-weight:600;
+           display:none; }
+  .toast.show { display:block; }
 </style>
 </head>
 <body>
-<div class="search">
-  <input id="q" type="search" placeholder="Search by name or specialty" autocomplete="off">
-  <div class="chips" id="chips"></div>
+
+<div class="top">
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="22" y="4" width="20" height="56" rx="6" fill="#1e73be"/>
+    <rect x="4" y="22" width="56" height="20" rx="6" fill="#2ea8e8"/>
+    <path d="M32 47C20 39 16 32 16 26.5 16 21.5 20 18 24.5 18 28 18 31 20 32 22.5 33 20 36 18 39.5 18 44 18 48 21.5 48 26.5 48 32 44 39 32 47Z" fill="#fff"/>
+    <polyline points="21,31 27.5,31 30,25.5 33.5,36 35.5,31 43,31" fill="none" stroke="#0b4f85" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M34 61C49 59 59 48 59 33 53 44 45 46 33 53Z" fill="#2bb37b"/>
+  </svg>
+  <div>
+    <div class="brand">Smart<span>Care</span></div>
+    <div class="tag">Your health, simplified.</div>
+  </div>
 </div>
-<div id="list"></div>
+
+<div class="hero">
+  <h1 id="h1">Find a doctor</h1>
+  <p id="hp">Search by name or specialty, then book a visit.</p>
+</div>
+
+<!-- DOCTORS VIEW -->
+<div id="v-doctors">
+  <div class="tools">
+    <div class="field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#5a7487" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search by name or specialty" autocomplete="off">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="wrap">
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<!-- APPOINTMENTS VIEW -->
+<div id="v-appts" style="display:none">
+  <div class="wrap"><div id="appts"></div></div>
+</div>
+
+<!-- BOOKING FORM -->
+<div class="overlay" id="ov">
+  <div class="sheet">
+    <h2 id="mDoc"></h2>
+    <div class="sub" id="mSub"></div>
+    <label for="fName">Your name</label>
+    <input id="fName" type="text" autocomplete="name">
+    <label for="fPhone">Phone number</label>
+    <input id="fPhone" type="tel" autocomplete="tel">
+    <label for="fDate">Date</label>
+    <input id="fDate" type="date">
+    <label for="fTime">Time</label>
+    <select id="fTime"></select>
+    <div class="err" id="err"></div>
+    <div class="row">
+      <button class="btn ghost" id="bCancel">Close</button>
+      <button class="btn go" id="bConfirm">Confirm booking</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="nav">
+  <button id="tDoctors" class="on">Doctors</button>
+  <button id="tAppts">My appointments</button>
+</div>
 
 <script>
 // EDIT THIS LIST: one line per doctor. Keep the commas and quotes.
@@ -54,41 +176,138 @@ var DOCTORS = [
   { name: "Dr. Roza Hamad",     specialty: "General Medicine", dept: "Clinic I, Floor 1",        days: "Sun - Thu",     phone: "0750 667 7889" }
 ];
 
-var q = document.getElementById("q"), list = document.getElementById("list"),
-    chipsEl = document.getElementById("chips"), active = "All";
+var TIMES = ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","13:00","13:30","14:00","14:30","15:00","15:30","16:00"];
 
-var specs = ["All"];
-DOCTORS.forEach(function (d) { if (specs.indexOf(d.specialty) < 0) specs.push(d.specialty); });
-
+function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
   return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
+/* ---- saved appointments (stays on this phone; falls back to memory if storage is blocked) ---- */
+var KEY = "smartcare_appointments", memory = [];
+function loadAppts() {
+  try { var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : []; } catch (e) { return memory; }
+}
+function saveAppts(a) {
+  memory = a;
+  try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {}
+}
+
+/* ---- doctors list ---- */
+var active = "All", specs = ["All"];
+DOCTORS.forEach(function (d) { if (specs.indexOf(d.specialty) < 0) specs.push(d.specialty); });
+
+function initials(n) { var p = n.replace("Dr. ", "").split(" "); return (p[0][0] + p[p.length - 1][0]).toUpperCase(); }
+
 function drawChips() {
-  chipsEl.innerHTML = specs.map(function (s) {
+  $("chips").innerHTML = specs.map(function (s) {
     return '<button class="chip' + (s === active ? " on" : "") + '" data-s="' + esc(s) + '">' + esc(s) + "</button>";
   }).join("");
 }
 
 function render() {
-  var term = q.value.trim().toLowerCase();
+  var term = $("q").value.trim().toLowerCase();
   var rows = DOCTORS.filter(function (d) {
     var okSpec = active === "All" || d.specialty === active;
     var okText = !term || (d.name + " " + d.specialty + " " + d.dept).toLowerCase().indexOf(term) > -1;
     return okSpec && okText;
   });
-  list.innerHTML = rows.length ? rows.map(function (d) {
-    return '<div class="doc"><b>' + esc(d.name) + '</b><div class="spec">' + esc(d.specialty) +
-      '</div><div class="meta">' + esc(d.dept) + '<br>Available: ' + esc(d.days) + '</div>' +
-      '<a class="call" href="tel:' + esc(d.phone.replace(/\s/g, "")) + '">Call ' + esc(d.phone) + '</a></div>';
-  }).join("") : '<div class="empty">No doctors found. Try another name or specialty.</div>';
+  $("count").textContent = rows.length + (rows.length === 1 ? " doctor" : " doctors");
+  $("list").innerHTML = rows.length ? rows.map(function (d) {
+    var i = DOCTORS.indexOf(d);
+    return '<div class="doc"><div class="av">' + esc(initials(d.name)) + '</div><div class="info"><b>' +
+      esc(d.name) + '</b><br><span class="spec">' + esc(d.specialty) + '</span><div class="meta">' +
+      esc(d.dept) + '<br>Available: ' + esc(d.days) + '</div><div class="btns">' +
+      '<button class="btn book" data-i="' + i + '">Book appointment</button>' +
+      '<a class="btn call" href="tel:' + esc(d.phone.replace(/\s/g, "")) + '">Call</a></div></div></div>';
+  }).join("") : '<div class="empty">No doctors found.<br>Try another name or specialty.</div>';
 }
 
-chipsEl.addEventListener("click", function (e) {
+/* ---- booking form ---- */
+var current = null;
+function today() {
+  var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+  return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (day < 10 ? "0" : "") + day;
+}
+$("fTime").innerHTML = TIMES.map(function (t) { return '<option value="' + t + '">' + t + "</option>"; }).join("");
+
+function openForm(i) {
+  current = DOCTORS[i];
+  $("mDoc").textContent = current.name;
+  $("mSub").textContent = current.specialty + " - " + current.dept;
+  $("fDate").min = today();
+  $("fDate").value = "";
+  $("err").textContent = "";
+  $("ov").className = "overlay show";
+}
+function closeForm() { $("ov").className = "overlay"; }
+
+function toast(msg) {
+  var t = $("toast"); t.textContent = msg; t.className = "toast show";
+  setTimeout(function () { t.className = "toast"; }, 2200);
+}
+
+$("bConfirm").addEventListener("click", function () {
+  var name = $("fName").value.trim(), phone = $("fPhone").value.trim(), date = $("fDate").value;
+  if (!name || !phone || !date) { $("err").textContent = "Please enter your name, phone number and date."; return; }
+  if (date < today()) { $("err").textContent = "Please choose today or a later date."; return; }
+  var a = loadAppts();
+  a.push({ id: Date.now(), doctor: current.name, specialty: current.specialty, dept: current.dept,
+           date: date, time: $("fTime").value, name: name, phone: phone });
+  saveAppts(a);
+  closeForm(); renderAppts(); showTab("appts"); toast("Appointment booked");
+});
+$("bCancel").addEventListener("click", closeForm);
+$("ov").addEventListener("click", function (e) { if (e.target === $("ov")) closeForm(); });
+
+/* ---- my appointments ---- */
+function fmtDate(s) {
+  try { return new Date(s + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
+  catch (e) { return s; }
+}
+function renderAppts() {
+  var a = loadAppts().slice().sort(function (x, y) { return y.id - x.id; });
+  $("appts").innerHTML = a.length ? a.map(function (p) {
+    return '<div class="doc"><div class="av">' + esc(initials(p.doctor)) + '</div><div class="info"><b>' + esc(p.doctor) +
+      '</b><br><span class="spec">' + esc(p.specialty) + '</span><div class="meta">' + esc(p.dept) +
+      '</div><div class="when">' + esc(fmtDate(p.date)) + ' at ' + esc(p.time) + '</div><div class="meta">Booked for ' +
+      esc(p.name) + ' (' + esc(p.phone) + ')</div><div class="btns"><button class="btn cancel" data-id="' + p.id +
+      '">Cancel appointment</button></div></div></div>';
+  }).join("") : '<div class="empty">No appointments yet.<br>Pick a doctor and tap Book appointment.</div>';
+}
+
+$("appts").addEventListener("click", function (e) {
+  var id = e.target.getAttribute("data-id");
+  if (!id) return;
+  if (e.target.className.indexOf("sure") < 0) { e.target.className = "btn cancel sure"; e.target.textContent = "Tap again to cancel"; return; }
+  saveAppts(loadAppts().filter(function (p) { return String(p.id) !== id; }));
+  renderAppts(); toast("Appointment cancelled");
+});
+
+/* ---- tabs ---- */
+function showTab(t) {
+  var docs = t === "doctors";
+  $("v-doctors").style.display = docs ? "" : "none";
+  $("v-appts").style.display = docs ? "none" : "";
+  $("tDoctors").className = docs ? "on" : "";
+  $("tAppts").className = docs ? "" : "on";
+  $("h1").textContent = docs ? "Find a doctor" : "My appointments";
+  $("hp").textContent = docs ? "Search by name or specialty, then book a visit." : "Your booked visits, newest first.";
+  window.scrollTo(0, 0);
+}
+$("tDoctors").addEventListener("click", function () { showTab("doctors"); });
+$("tAppts").addEventListener("click", function () { showTab("appts"); });
+
+$("chips").addEventListener("click", function (e) {
   var s = e.target.getAttribute("data-s");
   if (s) { active = s; drawChips(); render(); }
 });
-q.addEventListener("input", render);
-drawChips(); render();
+$("list").addEventListener("click", function (e) {
+  var i = e.target.getAttribute("data-i");
+  if (i !== null) openForm(Number(i));
+});
+$("q").addEventListener("input", render);
+
+drawChips(); render(); renderAppts();
 </script>
 </body>
 </html>
